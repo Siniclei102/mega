@@ -1,0 +1,2292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>VRConnect - Premium VPN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", "Segoe UI", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 0.5rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 1rem;
+            max-width: 380px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            max-height: 95vh;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+
+        /* Logo Section */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .dynamic-logo {
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+            max-height: 60px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+            display: none;
+        }
+
+        .default-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #f0f8ff 100%);
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+        }
+
+        /* Alert System */
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            max-width: calc(100vw - 40px);
+            width: 350px;
+        }
+
+        .alert {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border-left: 4px solid;
+            transform: translateY(-100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .alert.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .alert.success {
+            border-left-color: #26de81;
+            color: #1a5d2e;
+        }
+
+        .alert.warning {
+            border-left-color: #ffa502;
+            color: #8b5a00;
+        }
+
+        .alert.error {
+            border-left-color: #ff6b6b;
+            color: #8b2635;
+        }
+
+        .alert.info {
+            border-left-color: #78d7ff;
+            color: #1e4a5f;
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .alert-message {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .alert-close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        /* Connection Status - Compacto */
+        .connection-status {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .status-indicator.disconnected {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .status-indicator.connecting {
+            background: linear-gradient(135deg, #ffa502, #ff6348);
+            box-shadow: 0 0 15px rgba(255, 165, 2, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.connected {
+            background: linear-gradient(135deg, #26de81, #20bf6b);
+            box-shadow: 0 0 15px rgba(38, 222, 129, 0.3);
+        }
+
+        .status-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .status-text {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .status-subtext {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Network Info - Detalhada */
+        .network-info {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.8rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            font-size: 0.75rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .info-item i {
+            color: #78d7ff;
+            width: 14px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .network-type {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .network-type.wifi {
+            color: #78d7ff;
+        }
+
+        .network-type.mobile {
+            color: #26de81;
+        }
+
+        .network-type.ethernet {
+            color: #ffa502;
+        }
+
+        /* Server Selection - Compacto */
+        .select-server {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .select-server:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .select-server i {
+            color: #78d7ff;
+            font-size: 1rem;
+        }
+
+        .select-server input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .select-server input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Input Fields - Compactos */
+        .input-field {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus-within {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .input-field.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .input-field.hidden {
+            display: none;
+        }
+
+        .input-field i {
+            color: #78d7ff;
+            font-size: 1rem;
+            width: 16px;
+        }
+
+        .input-field input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .input-field input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* User Info - Compacto */
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 0.8rem;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .user-info-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #78d7ff, #667eea);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(120, 215, 255, 0.3);
+        }
+
+        .user-welcome h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-welcome p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 0.6rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Action Buttons - Compactos em linha */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 0.7rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            flex: 1;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn i {
+            font-size: 0.8rem;
+        }
+
+        /* Connect Button */
+        .connect-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .connect-btn.connecting {
+            background: linear-gradient(135deg, #ffa502, #ff6348);
+            box-shadow: 0 6px 20px rgba(255, 165, 2, 0.3);
+        }
+
+        .connect-btn.connected {
+            background: linear-gradient(135deg, #26de81, #20bf6b);
+            box-shadow: 0 6px 20px rgba(38, 222, 129, 0.3);
+        }
+
+        /* Connecting Animation */
+        .connecting-animation {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top: 3px solid #78d7ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 0.8rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .connecting-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            max-width: 480px;
+            width: 90%;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .category-header {
+            padding: 1rem 1.2rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #78d7ff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .server-item, .category-item {
+            padding: 1rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .server-item:hover, .category-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .server-item.selected {
+            background: rgba(120, 215, 255, 0.15);
+            border-left: 3px solid #78d7ff;
+        }
+
+        .server-icon, .category-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .server-name, .category-name {
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.2rem;
+            font-size: 0.9rem;
+        }
+
+        .server-details {
+            display: flex;
+            gap: 0.8rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .server-mode {
+            background: rgba(120, 215, 255, 0.2);
+            color: #78d7ff;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+
+        .back-btn {
+            padding: 1rem 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #78d7ff;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Menu Styles */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 380px;
+            padding: 1.2rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .menu-overlay.show .menu-container {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 0.6rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-item i {
+            font-size: 1.1rem;
+            color: #78d7ff;
+            margin-right: 0.8rem;
+            width: 20px;
+        }
+
+        .menu-title {
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .menu-desc {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.75rem;
+        }
+
+        .status-indicator-menu {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            transition: all 0.3s ease;
+            margin-left: auto;
+        }
+
+        .status-indicator-menu.active {
+            background: #26de81;
+            box-shadow: 0 0 8px rgba(38, 222, 129, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.8rem;
+                margin: 0.3rem;
+                gap: 0.6rem;
+            }
+
+            .default-title {
+                font-size: 1.4rem;
+            }
+
+            .network-info {
+                font-size: 0.7rem;
+                gap: 0.4rem;
+            }
+
+            .action-buttons {
+                gap: 0.3rem;
+            }
+
+            .action-btn {
+                padding: 0.6rem 0.4rem;
+                font-size: 0.7rem;
+            }
+
+            .modal {
+                width: 95%;
+                margin: 0.5rem;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .modal-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Animation Classes */
+        .fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Alert Container -->
+    <div class="alert-container" id="alertContainer"></div>
+
+    <div class="container">
+        <!-- Logo Section -->
+        <div class="logo-container">
+            <img src="" alt="Logo" class="dynamic-logo" id="dynamicLogo" />
+            <div class="default-title" id="defaultTitle">VRConnect</div>
+            <div class="subtitle">Premium VPN Experience</div>
+        </div>
+
+        <!-- Connection Status -->
+        <div class="connection-status">
+            <div class="status-indicator disconnected" id="statusIndicator">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="status-info">
+                <div class="status-text" id="statusText">Desconectado</div>
+                <div class="status-subtext" id="statusSubtext">Toque para conectar</div>
+            </div>
+        </div>
+
+        <!-- Network Information - Detalhada -->
+        <div class="network-info">
+            <div class="network-type" id="networkType">Wi-Fi - Desconhecido</div>
+            
+            <div class="info-item">
+                <i class="fas fa-wifi"></i>
+                <span>Rede: <span class="info-value" id="networkName">Carregando...</span></span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-signal"></i>
+                <span>Sinal: <span class="info-value" id="signalStrength">-</span></span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Ping: <span class="info-value" id="pingResult">--ms</span></span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>IP: <span class="info-value" id="localIP">---.---.---.---</span></span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-sim-card"></i>
+                <span>Operadora: <span class="info-value" id="carrierName">-</span></span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-code-branch"></i>
+                <span>Versão: <span class="info-value" id="appVersion">-/-</span></span>
+            </div>
+        </div>
+
+        <!-- Server Selection -->
+        <div class="select-server" id="selectServer">
+            <i class="fas fa-server"></i>
+            <input type="text" placeholder="Selecione a operadora" readonly id="serverDisplay" />
+            <i class="fas fa-chevron-down"></i>
+        </div>
+
+        <!-- Input Fields -->
+        <div class="input-field" id="usernameField">
+            <i class="fas fa-user"></i>
+            <input type="text" placeholder="Nome de usuário" id="usernameInput" />
+        </div>
+
+        <div class="input-field" id="passwordField">
+            <i class="fas fa-lock"></i>
+            <input type="password" placeholder="Senha" id="passwordInput" />
+            <i class="fas fa-eye" id="togglePassword" style="cursor: pointer;"></i>
+        </div>
+
+        <div class="input-field hidden" id="uuidField">
+            <i class="fas fa-key"></i>
+            <input type="text" placeholder="UUID" id="uuidInput" />
+        </div>
+
+        <!-- Connecting Animation -->
+        <div class="connecting-animation" id="connectingAnimation">
+            <div class="spinner"></div>
+            <div class="connecting-text">Conectando...</div>
+        </div>
+
+        <!-- User Info -->
+        <div class="user-info" id="user-info">
+            <div class="user-info-header">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div class="user-welcome">
+                    <h3>Bem-vindo!</h3>
+                    <p id="user-name">Carregando...</p>
+                </div>
+            </div>
+            <div class="user-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Expira</div>
+                    <div class="stat-value" id="days-remaining">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Data</div>
+                    <div class="stat-value" id="user-expiry">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Conexões</div>
+                    <div class="stat-value" id="usage-limit">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Status</div>
+                    <div class="stat-value" style="color: #26de81;">Ativo</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="action-btn" id="updateBtn">
+                <i class="fas fa-sync-alt"></i>
+                <span>Update</span>
+            </button>
+            <button class="action-btn" id="debugBtn">
+                <i class="fas fa-bug"></i>
+                <span>Logs</span>
+            </button>
+            <button class="action-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+                <span>Menu</span>
+            </button>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- Connect Button -->
+        <button class="connect-btn" id="connectBtn">CONECTAR</button>
+    </div>
+
+    <!-- Menu Modal -->
+    <div class="menu-overlay" id="menuOverlay">
+        <div class="menu-container">
+            <div class="menu-item" id="menuApn">
+                <i class="fas fa-network-wired"></i>
+                <div class="menu-content">
+                    <div class="menu-title">APN</div>
+                    <div class="menu-desc">Configurar ponto de acesso</div>
+                </div>
+            </div>
+            <div class="menu-item" id="menuBattery">
+                <i class="fas fa-battery-full"></i>
+                <div class="menu-content">
+                    <div class="menu-title">Bateria</div>
+                    <div class="menu-desc">Otimização de energia</div>
+                </div>
+            </div>
+            <div class="menu-item" id="menuHotspot">
+                <i class="fas fa-wifi"></i>
+                <div class="menu-content">
+                    <div class="menu-title">Hotspot</div>
+                    <div class="menu-desc">Compartilhar conexão</div>
+                </div>
+                <div class="status-indicator-menu" id="hotspotStatus"></div>
+            </div>
+            <div class="menu-item" id="menuTerms">
+                <i class="fas fa-file-contract"></i>
+                <div class="menu-content">
+                    <div class="menu-title">Termos</div>
+                    <div class="menu-desc">Política de privacidade</div>
+                </div>
+            </div>
+            <div class="menu-item" id="menuClean">
+                <i class="fas fa-broom"></i>
+                <div class="menu-content">
+                    <div class="menu-title">Limpeza</div>
+                    <div class="menu-desc">Cache e dados</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Server Selection Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Selecionar Servidor</div>
+                <button class="close-btn" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const selectServerBtn = document.getElementById("selectServer");
+        const modalOverlay = document.getElementById("modalOverlay");
+        const closeModalBtn = document.getElementById("closeModal");
+        const modalBody = document.getElementById("modalBody");
+        const serverDisplay = document.getElementById("serverDisplay");
+        const usernameInput = document.getElementById("usernameInput");
+        const passwordInput = document.getElementById("passwordInput");
+        const uuidInput = document.getElementById("uuidInput");
+        const uuidField = document.getElementById("uuidField");
+        const usernameField = document.getElementById("usernameField");
+        const passwordField = document.getElementById("passwordField");
+        const togglePassword = document.getElementById("togglePassword");
+        const connectBtn = document.getElementById("connectBtn");
+        const updateBtn = document.getElementById("updateBtn");
+        const debugBtn = document.getElementById("debugBtn");
+        const errorMessage = document.getElementById("errorMessage");
+        const connectingAnimation = document.getElementById("connectingAnimation");
+        const userInfo = document.getElementById("user-info");
+        const statusIndicator = document.getElementById("statusIndicator");
+        const statusText = document.getElementById("statusText");
+        const statusSubtext = document.getElementById("statusSubtext");
+        
+        // Network Elements
+        const networkNameEl = document.getElementById("networkName");
+        const networkTypeEl = document.getElementById("networkType");
+        const signalStrengthEl = document.getElementById("signalStrength");
+        const pingResultEl = document.getElementById("pingResult");
+        const localIPEl = document.getElementById("localIP");
+        const carrierNameEl = document.getElementById("carrierName");
+        const appVersionEl = document.getElementById("appVersion");
+        
+        // Logo Elements
+        const dynamicLogo = document.getElementById("dynamicLogo");
+        const defaultTitle = document.getElementById("defaultTitle");
+        
+        // Alert System
+        const alertContainer = document.getElementById("alertContainer");
+
+        // State Variables
+        let currentConfig = null;
+        let allConfigs = [];
+        let vpnState = "DISCONNECTED";
+        let userCredentials = { username: "", password: "", uuid: "" };
+
+        // Update intervals
+        setInterval(updateNetworkInfo, 3000);
+        setInterval(checkVpnState, 1000);
+        setInterval(loadDynamicLogo, 5000);
+
+        /**
+         * Alert System Functions
+         */
+        function showAlert(type, title, message, duration = 5000) {
+            const alert = document.createElement('div');
+            alert.className = `alert ${type}`;
+            
+            const iconMap = {
+                success: 'fas fa-check-circle',
+                warning: 'fas fa-exclamation-triangle',
+                error: 'fas fa-times-circle',
+                info: 'fas fa-info-circle'
+            };
+            
+            alert.innerHTML = `
+                <i class="alert-icon ${iconMap[type]}"></i>
+                <div class="alert-content">
+                    <div class="alert-title">${title}</div>
+                    <div class="alert-message">${message}</div>
+                </div>
+                <button class="alert-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            alertContainer.appendChild(alert);
+            
+            // Show animation
+            setTimeout(() => alert.classList.add('show'), 100);
+            
+            // Auto remove
+            const autoRemove = setTimeout(() => removeAlert(alert), duration);
+            
+            // Manual close
+            alert.querySelector('.alert-close').addEventListener('click', () => {
+                clearTimeout(autoRemove);
+                removeAlert(alert);
+            });
+        }
+
+        function removeAlert(alert) {
+            alert.classList.remove('show');
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 300);
+        }
+
+        /**
+         * Logo Management Functions
+         */
+        function loadDynamicLogo() {
+            try {
+                if (window.DtGetDynamicLogo && typeof window.DtGetDynamicLogo.execute === "function") {
+                    const logoUrl = window.DtGetDynamicLogo.execute();
+                    if (logoUrl && logoUrl.trim() !== "") {
+                        dynamicLogo.src = logoUrl;
+                        dynamicLogo.style.display = "block";
+                        defaultTitle.style.display = "none";
+                    } else {
+                        dynamicLogo.style.display = "none";
+                        defaultTitle.style.display = "block";
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao carregar logo dinâmica:", error);
+                dynamicLogo.style.display = "none";
+                defaultTitle.style.display = "block";
+            }
+        }
+
+        /**
+         * Enhanced Network Information Functions
+         */
+        function updateNetworkInfo() {
+            try {
+                // Basic network info
+                const networkName = window.DtGetNetworkName?.execute() || "Desconhecido";
+                const localIP = window.DtGetLocalIP?.execute() || "---";
+                const pingResult = window.DtGetPingResult?.execute() || "--ms";
+                
+                // Enhanced network info
+                const networkType = getNetworkType();
+                const signalStrength = getSignalStrength();
+                const carrierName = getCarrierName();
+                
+                // Update basic info
+                networkNameEl.textContent = networkName;
+                localIPEl.textContent = localIP;
+                pingResultEl.textContent = pingResult;
+                
+                // Update enhanced info
+                updateNetworkType(networkType, networkName);
+                signalStrengthEl.textContent = signalStrength;
+                carrierNameEl.textContent = carrierName;
+                
+            } catch (error) {
+                console.error("Erro ao atualizar informações de rede:", error);
+            }
+        }
+
+        function getNetworkType() {
+            try {
+                // Try to get network type from native
+                if (window.DtGetNetworkType && typeof window.DtGetNetworkType.execute === "function") {
+                    return window.DtGetNetworkType.execute();
+                }
+                
+                // Fallback detection
+                if (navigator.connection) {
+                    const connection = navigator.connection;
+                    if (connection.type === 'wifi') return 'wifi';
+                    if (connection.type === 'cellular') return 'mobile';
+                    if (connection.type === 'ethernet') return 'ethernet';
+                }
+                
+                return 'wifi'; // Default fallback
+            } catch (error) {
+                console.error("Erro ao detectar tipo de rede:", error);
+                return 'wifi';
+            }
+        }
+
+        function getSignalStrength() {
+            try {
+                if (window.DtGetSignalStrength && typeof window.DtGetSignalStrength.execute === "function") {
+                    const strength = window.DtGetSignalStrength.execute();
+                    if (strength !== null && strength !== undefined) {
+                        return strength + " dBm";
+                    }
+                }
+                
+                // Try to get from connection API
+                if (navigator.connection && navigator.connection.downlink) {
+                    const mbps = navigator.connection.downlink;
+                    if (mbps > 10) return "Excelente";
+                    if (mbps > 5) return "Bom";
+                    if (mbps > 1) return "Regular";
+                    return "Fraco";
+                }
+                
+                return "-";
+            } catch (error) {
+                console.error("Erro ao obter força do sinal:", error);
+                return "-";
+            }
+        }
+
+        function getCarrierName() {
+            try {
+                // Try native method first
+                if (window.DtGetCarrierName && typeof window.DtGetCarrierName.execute === "function") {
+                    const carrier = window.DtGetCarrierName.execute();
+                    if (carrier && carrier.trim() !== "") {
+                        return carrier;
+                    }
+                }
+                
+                // Try mobile network operator
+                if (window.DtGetMobileOperator && typeof window.DtGetMobileOperator.execute === "function") {
+                    const operator = window.DtGetMobileOperator.execute();
+                    if (operator && operator.trim() !== "") {
+                        return operator;
+                    }
+                }
+                
+                // Fallback based on common carrier detection
+                const networkName = window.DtGetNetworkName?.execute() || "";
+                if (networkName.toLowerCase().includes('vivo')) return 'Vivo';
+                if (networkName.toLowerCase().includes('claro')) return 'Claro';
+                if (networkName.toLowerCase().includes('tim')) return 'TIM';
+                if (networkName.toLowerCase().includes('oi')) return 'Oi';
+                
+                return "-";
+            } catch (error) {
+                console.error("Erro ao obter operadora:", error);
+                return "-";
+            }
+        }
+
+        function updateNetworkType(type, networkName) {
+            const typeEl = networkTypeEl;
+            typeEl.className = "network-type";
+            
+            switch (type.toLowerCase()) {
+                case 'wifi':
+                case 'wi-fi':
+                    typeEl.classList.add('wifi');
+                    typeEl.innerHTML = `<i class="fas fa-wifi"></i> Wi-Fi - ${networkName}`;
+                    break;
+                case 'mobile':
+                case 'cellular':
+                case '4g':
+                case '5g':
+                case '3g':
+                    typeEl.classList.add('mobile');
+                    const carrierName = getCarrierName();
+                    typeEl.innerHTML = `<i class="fas fa-signal"></i> Móvel - ${carrierName !== '-' ? carrierName : 'Dados Móveis'}`;
+                    break;
+                case 'ethernet':
+                    typeEl.classList.add('ethernet');
+                    typeEl.innerHTML = `<i class="fas fa-ethernet"></i> Ethernet - ${networkName}`;
+                    break;
+                default:
+                    typeEl.classList.add('wifi');
+                    typeEl.innerHTML = `<i class="fas fa-question-circle"></i> ${type} - ${networkName}`;
+            }
+        }
+
+        /**
+         * System Alert Monitoring
+         */
+        function checkSystemAlerts() {
+            try {
+                if (window.DtGetSystemAlerts && typeof window.DtGetSystemAlerts.execute === "function") {
+                    const alerts = window.DtGetSystemAlerts.execute();
+                    if (alerts) {
+                        const alertsData = typeof alerts === 'string' ? JSON.parse(alerts) : alerts;
+                        if (Array.isArray(alertsData)) {
+                            alertsData.forEach(alert => {
+                                showAlert(
+                                    alert.type || 'info',
+                                    alert.title || 'Sistema',
+                                    alert.message || 'Nova notificação',
+                                    alert.duration || 5000
+                                );
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao verificar alertas do sistema:", error);
+            }
+        }
+
+        // Check for system alerts every 10 seconds
+        setInterval(checkSystemAlerts, 10000);
+
+        /**
+         * App Version Functions
+         */
+        function updateVersionInfo() {
+            let configVersion = "-";
+            let appVersion = "-";
+            try {
+                if (window.DtGetLocalConfigVersion && typeof window.DtGetLocalConfigVersion.execute === "function") {
+                    const version = window.DtGetLocalConfigVersion.execute();
+                    if (version) configVersion = version;
+                }
+            } catch (e) {
+                console.error("Erro ao obter versão da configuração:", e);
+            }
+            try {
+                if (window.DtAppVersion && typeof window.DtAppVersion.execute === "function") {
+                    const version = window.DtAppVersion.execute();
+                    if (version) appVersion = version;
+                }
+            } catch (e) {
+                console.error("Erro ao obter versão do aplicativo:", e);
+            }
+            if (appVersionEl) {
+                appVersionEl.textContent = `${configVersion}/${appVersion}`;
+            }
+        }
+
+        /**
+         * Local Storage Functions
+         */
+        function saveToLocalStorage(key, value) {
+            try {
+                localStorage.setItem(`tunnelx_${key}`, value);
+            } catch (error) {
+                console.error("Error saving to localStorage:", error);
+            }
+        }
+
+        function loadFromLocalStorage(key) {
+            try {
+                return localStorage.getItem(`tunnelx_${key}`) || "";
+            } catch (error) {
+                console.error("Error loading from localStorage:", error);
+                return "";
+            }
+        }
+
+        function loadUserCredentials() {
+            const savedUsername = loadFromLocalStorage("username");
+            const savedPassword = loadFromLocalStorage("password");
+            const savedUuid = loadFromLocalStorage("uuid");
+            userCredentials.username = savedUsername;
+            userCredentials.password = savedPassword;
+            userCredentials.uuid = savedUuid;
+        }
+
+        function applyUserCredentialsToInputs() {
+            usernameInput.value = userCredentials.username;
+            passwordInput.value = userCredentials.password;
+            uuidInput.value = userCredentials.uuid;
+        }
+
+        /**
+         * VPN State Functions
+         */
+        function checkVpnState() {
+            try {
+                const state = window.DtGetVpnState?.execute();
+                if (state && state !== vpnState) {
+                    vpnState = state;
+                    updateUI();
+                }
+            } catch (error) {
+                console.error("Error checking VPN state:", error);
+            }
+        }
+
+        function updateUI() {
+            const isConnecting = vpnState === "CONNECTING";
+            const isConnected = vpnState === "CONNECTED";
+            const isDisconnected = vpnState === "DISCONNECTED";
+
+            // Update status indicator
+            statusIndicator.className = "status-indicator";
+            connectBtn.className = "connect-btn";
+
+            if (isConnecting) {
+                statusIndicator.classList.add("connecting");
+                statusIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                statusText.textContent = "Conectando...";
+                statusSubtext.textContent = "Estabelecendo conexão";
+                connectBtn.classList.add("connecting");
+                connectBtn.textContent = "CONECTANDO...";
+                showConnectingAnimation();
+            } else if (isConnected) {
+                statusIndicator.classList.add("connected");
+                statusIndicator.innerHTML = '<i class="fas fa-shield-alt"></i>';
+                statusText.textContent = "Conectado";
+                statusSubtext.textContent = "Conexão protegida";
+                connectBtn.classList.add("connected");
+                connectBtn.textContent = "DESCONECTAR";
+                hideConnectingAnimation();
+                showUserInfo();
+            } else {
+                statusIndicator.classList.add("disconnected");
+                statusIndicator.innerHTML = '<i class="fas fa-shield-alt"></i>';
+                statusText.textContent = "Desconectado";
+                statusSubtext.textContent = "Toque para conectar";
+                connectBtn.textContent = "CONECTAR";
+                hideConnectingAnimation();
+                hideUserInfo();
+                showInputFields();
+            }
+
+            // Update input field states
+            const inputFields = document.querySelectorAll(".input-field");
+            inputFields.forEach((field) => {
+                if (isDisconnected) {
+                    field.classList.remove("disabled");
+                } else {
+                    field.classList.add("disabled");
+                }
+            });
+        }
+
+        /**
+         * Error and Validation Functions
+         */
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = "block";
+            setTimeout(() => {
+                errorMessage.style.display = "none";
+            }, 5000);
+            
+            // Also show as alert
+            showAlert('error', 'Erro', message);
+        }
+
+        function validateConnection() {
+            if (!currentConfig) {
+                showError("Selecione um servidor antes de conectar");
+                return false;
+            }
+
+            const isV2ray = currentConfig.mode && currentConfig.mode.toLowerCase().includes("v2ray");
+            const hasAuthData = currentConfig.auth && (currentConfig.auth.username || currentConfig.auth.password || currentConfig.auth.uuid);
+
+            if (hasAuthData) {
+                return true;
+            }
+
+            if (isV2ray) {
+                if (!uuidInput.value.trim()) {
+                    showError("Digite o UUID para conexões V2Ray");
+                    return false;
+                }
+            } else {
+                if (!usernameInput.value.trim() || !passwordInput.value.trim()) {
+                    showError("Digite o usuário e senha para conectar");
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * VPN Connection Functions
+         */
+        function appStartConnection() {
+            if (!validateConnection()) return;
+            try {
+                window.DtExecuteVpnStart?.execute();
+                showAlert('info', 'Conectando', 'Iniciando conexão VPN...');
+            } catch (error) {
+                console.error("Erro ao iniciar VPN:", error);
+                showAlert('error', 'Erro', 'Falha ao iniciar conexão VPN');
+            }
+        }
+
+        function appStopConnection() {
+            try {
+                window.DtExecuteVpnStop?.execute();
+                showAlert('info', 'Desconectando', 'Encerrando conexão VPN...');
+            } catch (error) {
+                console.error("Error stopping VPN:", error);
+                showAlert('error', 'Erro', 'Falha ao desconectar VPN');
+            }
+        }
+
+        // Event Listeners
+        togglePassword.addEventListener("click", () => {
+            const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+            passwordInput.setAttribute("type", type);
+            togglePassword.classList.toggle("fa-eye");
+            togglePassword.classList.toggle("fa-eye-slash");
+        });
+
+        updateBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            try {
+                window.DtStartAppUpdate?.execute();
+                showAlert('info', 'Atualização', 'Procurando atualizações...');
+            } catch (error) {
+                console.error("Error updating app:", error);
+                showAlert('error', 'Erro', 'Falha ao verificar atualizações');
+            }
+        });
+
+        debugBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            try {
+                window.DtShowLoggerDialog?.execute();
+            } catch (error) {
+                console.error("Error showing logs:", error);
+                showAlert('error', 'Erro', 'Falha ao abrir logs');
+            }
+        });
+
+        connectBtn.addEventListener("click", () => {
+            const state = vpnState;
+            if (state !== "DISCONNECTED") {
+                appStopConnection();
+            } else {
+                appStartConnection();
+            }
+        });
+
+        selectServerBtn.addEventListener("click", () => {
+            loadServers();
+            modalOverlay.style.display = "flex";
+        });
+
+        closeModalBtn.addEventListener("click", closeModal);
+        modalOverlay.addEventListener("click", (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        function closeModal() {
+            modalOverlay.style.display = "none";
+        }
+
+        /**
+         * Server Management Functions
+         */
+        function loadServers() {
+            try {
+                const configsData = window.DtGetConfigs?.execute();
+                if (configsData) {
+                    allConfigs = JSON.parse(configsData);
+                    allConfigs.sort((a, b) => (a.sorter || 0) - (b.sorter || 0));
+                    allConfigs.forEach((category) => {
+                        if (category.items) {
+                            category.items.sort((a, b) => (a.sorter || 0) - (b.sorter || 0));
+                        }
+                    });
+                    currentView = "categories";
+                    selectedCategory = null;
+                    renderServers();
+                }
+            } catch (error) {
+                console.error("Error loading servers:", error);
+                modalBody.innerHTML = '<div style="padding: 2rem; text-align: center; color: rgba(255,255,255,0.7);">Erro ao carregar servidores</div>';
+                showAlert('error', 'Erro', 'Falha ao carregar lista de servidores');
+            }
+        }
+
+        let currentView = "categories";
+        let selectedCategory = null;
+
+        function renderServers() {
+            const currentConfigData = getCurrentConfig();
+            modalBody.innerHTML = "";
+
+            if (currentView === "categories") {
+                renderCategories();
+            } else {
+                renderCategoryServers();
+            }
+        }
+
+        function renderCategories() {
+            allConfigs.forEach((category) => {
+                if (!category.items || category.items.length === 0) return;
+
+                const categoryItem = document.createElement("div");
+                categoryItem.className = "category-item";
+                categoryItem.innerHTML = `
+                    <div class="category-item-content">
+                        <img src="${category.items[0].icon || "https://placehold.co/36x36/667eea/FFFFFF?text=IMG"}" alt="${category.name}" class="category-icon" onerror="this.src='https://placehold.co/36x36/667eea/FFFFFF?text=IMG'">
+                        <div class="category-info">
+                            <div class="category-name">${category.name}</div>
+                            <div class="category-count">${category.items.length} servidor${category.items.length > 1 ? "es" : ""}</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color: rgba(255,255,255,0.5);"></i>
+                `;
+                categoryItem.addEventListener("click", () => {
+                    selectedCategory = category;
+                    currentView = "servers";
+                    renderServers();
+                });
+                modalBody.appendChild(categoryItem);
+            });
+        }
+
+        function renderCategoryServers() {
+            const currentConfigData = getCurrentConfig();
+
+            const backBtn = document.createElement("div");
+            backBtn.className = "back-btn";
+            backBtn.innerHTML = `
+                <i class="fas fa-arrow-left"></i><span>Voltar</span>
+            `;
+            backBtn.addEventListener("click", () => {
+                currentView = "categories";
+                selectedCategory = null;
+                renderServers();
+            });
+            modalBody.appendChild(backBtn);
+
+            const categoryDiv = document.createElement("div");
+            categoryDiv.className = "category";
+
+            const categoryHeader = document.createElement("div");
+            categoryHeader.className = "category-header";
+            categoryHeader.textContent = selectedCategory.name;
+            categoryDiv.appendChild(categoryHeader);
+
+            selectedCategory.items.forEach((item) => {
+                const serverItem = document.createElement("div");
+                serverItem.className = "server-item";
+                if (currentConfigData && currentConfigData.id === item.id) {
+                    serverItem.classList.add("selected");
+                }
+                serverItem.innerHTML = `
+                    <img src="${item.icon || "https://placehold.co/36x36/667eea/FFFFFF?text=IMG"}" alt="${item.name}" class="server-icon" onerror="this.src='https://placehold.co/36x36/667eea/FFFFFF?text=IMG'">
+                    <div class="server-info">
+                        <div class="server-name">${item.name}</div>
+                        <div class="server-details">
+                            <span class="server-mode">${item.mode}</span>
+                            <span>${item.description || ""}</span>
+                        </div>
+                    </div>
+                `;
+                serverItem.addEventListener("click", (event) => selectServer(item, event));
+                categoryDiv.appendChild(serverItem);
+            });
+            modalBody.appendChild(categoryDiv);
+        }
+
+        function selectServer(config, event) {
+            try {
+                window.DtSetConfig?.execute(config.id);
+                currentConfig = config;
+                serverDisplay.value = config.name;
+
+                document.querySelectorAll(".server-item").forEach((item) => {
+                    item.classList.remove("selected");
+                });
+                event.target.closest(".server-item").classList.add("selected");
+
+                updateInputFields(config);
+
+                const updatedConfig = getCurrentConfig();
+                if (updatedConfig && updatedConfig.auth) {
+                    const { username, password, uuid } = updatedConfig.auth;
+                    if (username) {
+                        usernameInput.value = username;
+                        window.DtUsername?.set(username);
+                    } else {
+                        usernameInput.value = userCredentials.username;
+                        window.DtUsername?.set(userCredentials.username);
+                    }
+                    if (password) {
+                        passwordInput.value = password;
+                        window.DtPassword?.set(password);
+                    } else {
+                        passwordInput.value = userCredentials.password;
+                        window.DtPassword?.set(userCredentials.password);
+                    }
+                    if (uuid) {
+                        uuidInput.value = uuid;
+                        window.DtUuid?.set(uuid);
+                    } else {
+                        uuidInput.value = userCredentials.uuid;
+                        window.DtUuid?.set(userCredentials.uuid);
+                    }
+                } else {
+                    applyUserCredentialsToInputs();
+                    window.DtUsername?.set(userCredentials.username);
+                    window.DtPassword?.set(userCredentials.password);
+                    window.DtUuid?.set(userCredentials.uuid);
+                }
+                
+                showAlert('success', 'Servidor', `Servidor ${config.name} selecionado`);
+                closeModal();
+            } catch (error) {
+                console.error("Error selecting server:", error);
+                showAlert('error', 'Erro', 'Falha ao selecionar servidor');
+            }
+        }
+
+        function updateInputFields(config) {
+            usernameField.classList.add("hidden");
+            passwordField.classList.add("hidden");
+            uuidField.classList.add("hidden");
+
+            const updatedConfig = getCurrentConfig();
+            const configToCheck = updatedConfig || config;
+
+            const isV2ray = configToCheck.mode && configToCheck.mode.toLowerCase().includes("v2ray");
+            const hasAuthData = configToCheck.auth && (configToCheck.auth.username || configToCheck.auth.password || configToCheck.auth.uuid);
+
+            if (!hasAuthData) {
+                if (isV2ray) {
+                    uuidField.classList.remove("hidden");
+                } else {
+                    usernameField.classList.remove("hidden");
+                    passwordField.classList.remove("hidden");
+                }
+            }
+        }
+
+        function getCurrentConfig() {
+            try {
+                const configData = window.DtGetDefaultConfig?.execute();
+                if (configData) {
+                    return typeof configData === "string" ? JSON.parse(configData) : configData;
+                }
+            } catch (error) {
+                console.error("Error getting current config:", error);
+            }
+            return null;
+        }
+
+        /**
+         * Animation Functions
+         */
+        function showConnectingAnimation() {
+            hideInputFields();
+            connectingAnimation.style.display = "block";
+            userInfo.style.display = "none";
+        }
+
+        function hideConnectingAnimation() {
+            connectingAnimation.style.display = "none";
+        }
+
+        function hideInputFields() {
+            const visibleFields = document.querySelectorAll(".input-field:not(.hidden)");
+            visibleFields.forEach((field) => {
+                field.classList.add("fade-out");
+                setTimeout(() => {
+                    field.style.display = "none";
+                }, 300);
+            });
+        }
+
+        function showInputFields() {
+            const inputFields = [usernameField, passwordField, uuidField];
+            inputFields.forEach((field) => {
+                field.style.display = "flex";
+                field.classList.remove("fade-out");
+            });
+            if (currentConfig) {
+                updateInputFields(currentConfig);
+            }
+        }
+
+        /**
+         * User Info Functions
+         */
+        function showUserInfo() {
+            const inputFields = [usernameField, passwordField, uuidField];
+            inputFields.forEach((field) => {
+                field.style.display = "none";
+            });
+
+            userInfo.style.display = "block";
+            userInfo.classList.add("fade-in");
+            loadUserData();
+
+            try {
+                if (window.DtGetUserInfo && typeof window.DtGetUserInfo.execute === "function") {
+                    const userInfoData = window.DtGetUserInfo.execute();
+                    if (userInfoData) {
+                        dtCheckUserModelListener(userInfoData);
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao buscar informações do usuário:", error);
+            }
+        }
+
+        function hideUserInfo() {
+            userInfo.style.display = "none";
+            userInfo.classList.remove("fade-in");
+        }
+
+        function dtCheckUserModelListener(userDataJson) {
+            try {
+                const t = JSON.parse(userDataJson);
+                const userNameEl = document.getElementById("user-name");
+                const userExpiryEl = document.getElementById("user-expiry");
+                const daysRemainingEl = document.getElementById("days-remaining");
+                const usageLimitEl = document.getElementById("usage-limit");
+                const userAvatarEl = document.getElementById("user-avatar");
+
+                userInfo.style.display = "block";
+
+                const username = t.username || "-";
+                userNameEl.textContent = username;
+                userExpiryEl.textContent = t.expiration_date || "-";
+                daysRemainingEl.textContent = t.expiration_days ? `${t.expiration_days} dias` : "-";
+                usageLimitEl.textContent = t.limit_connections ? `${t.count_connections || 0}/${t.limit_connections}` : "-";
+
+                if (username && username !== "-") {
+                    userAvatarEl.textContent = username.charAt(0).toUpperCase();
+                }
+
+                // Show connection success alert
+                if (vpnState === "CONNECTED") {
+                    showAlert('success', 'Conectado', `Bem-vindo, ${username}!`);
+                }
+
+                saveToLocalStorage(
+                    "user_data",
+                    JSON.stringify({
+                        username: username,
+                        expiration_date: t.expiration_date || "-",
+                        expiration_days: t.expiration_days || "-",
+                        limit_connections: t.limit_connections || "-",
+                        count_connections: t.count_connections || 0,
+                    })
+                );
+            } catch (e) {
+                console.error("Erro ao processar dados do usuário:", e);
+                showAlert('warning', 'Aviso', 'Erro ao carregar dados do usuário');
+            }
+        }
+
+        function loadUserData() {
+            try {
+                const savedUserData = loadFromLocalStorage("user_data");
+                if (savedUserData) {
+                    const userData = JSON.parse(savedUserData);
+                    const userNameEl = document.getElementById("user-name");
+                    const userExpiryEl = document.getElementById("user-expiry");
+                    const daysRemainingEl = document.getElementById("days-remaining");
+                    const usageLimitEl = document.getElementById("usage-limit");
+                    const userAvatarEl = document.getElementById("user-avatar");
+
+                    userNameEl.textContent = userData.username;
+                    userExpiryEl.textContent = userData.expiration_date;
+                    daysRemainingEl.textContent = userData.expiration_days !== "-" ? `${userData.expiration_days} dias` : "-";
+                    usageLimitEl.textContent = userData.limit_connections !== "-" ? `${userData.count_connections}/${userData.limit_connections}` : "-";
+
+                    if (userData.username && userData.username !== "-") {
+                        userAvatarEl.textContent = userData.username.charAt(0).toUpperCase();
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados do usuário:", error);
+            }
+        }
+
+        /**
+         * Input Event Listeners
+         */
+        usernameInput.addEventListener("input", () => {
+            userCredentials.username = usernameInput.value;
+            saveToLocalStorage("username", usernameInput.value);
+            try {
+                window.DtUsername?.set(usernameInput.value);
+            } catch (error) {
+                console.error("Error saving username:", error);
+            }
+        });
+
+        passwordInput.addEventListener("input", () => {
+            userCredentials.password = passwordInput.value;
+            saveToLocalStorage("password", passwordInput.value);
+            try {
+                window.DtPassword?.set(passwordInput.value);
+            } catch (error) {
+                console.error("Error saving password:", error);
+            }
+        });
+
+        uuidInput.addEventListener("input", () => {
+            userCredentials.uuid = uuidInput.value;
+            saveToLocalStorage("uuid", uuidInput.value);
+            try {
+                window.DtUuid?.set(uuidInput.value);
+            } catch (error) {
+                console.error("Error saving UUID:", error);
+            }
+        });
+
+        /**
+         * Enhanced VPN State Change Handler
+         */
+        function handleVpnStateChange(newState, oldState) {
+            switch (newState) {
+                case "CONNECTED":
+                    showAlert('success', 'Conectado', 'VPN conectada com sucesso!');
+                    break;
+                case "DISCONNECTED":
+                    if (oldState === "CONNECTED") {
+                        showAlert('info', 'Desconectado', 'VPN desconectada');
+                    }
+                    break;
+                case "CONNECTING":
+                    showAlert('info', 'Conectando', 'Estabelecendo conexão...');
+                    break;
+                case "AUTH_FAILED":
+                    showAlert('error', 'Falha na Autenticação', 'Verifique suas credenciais');
+                    break;
+                case "NO_NETWORK":
+                    showAlert('warning', 'Sem Rede', 'Verifique sua conexão com a internet');
+                    break;
+                case "STOPPING":
+                    showAlert('info', 'Desconectando', 'Encerrando conexão...');
+                    break;
+            }
+        }
+
+        // Enhanced state checking with change detection
+        let previousVpnState = "DISCONNECTED";
+        function checkVpnStateEnhanced() {
+            try {
+                const state = window.DtGetVpnState?.execute();
+                if (state && state !== vpnState) {
+                    handleVpnStateChange(state, vpnState);
+                    previousVpnState = vpnState;
+                    vpnState = state;
+                    updateUI();
+                }
+            } catch (error) {
+                console.error("Error checking VPN state:", error);
+            }
+        }
+
+        // Replace the simple checkVpnState with enhanced version
+        setInterval(checkVpnStateEnhanced, 1000);
+
+        /**
+         * Initialization Function
+         */
+        function initializeApp() {
+            try {
+                console.log("Inicializando VRConnect...");
+                
+                // Load user credentials
+                loadUserCredentials();
+                loadUserData();
+                
+                // Load dynamic logo
+                loadDynamicLogo();
+                
+                // Update network and version info
+                updateNetworkInfo();
+                updateVersionInfo();
+                
+                // Load current config
+                const currentConfigData = getCurrentConfig();
+                if (currentConfigData) {
+                    serverDisplay.value = currentConfigData.name;
+                    currentConfig = currentConfigData;
+                    updateInputFields(currentConfigData);
+
+                    if (currentConfigData.auth) {
+                        const { username, password, uuid } = currentConfigData.auth;
+                        if (username) {
+                            usernameInput.value = username;
+                        } else {
+                            usernameInput.value = userCredentials.username;
+                        }
+                        if (password) {
+                            passwordInput.value = password;
+                        } else {
+                            passwordInput.value = userCredentials.password;
+                        }
+                        if (uuid) {
+                            uuidInput.value = uuid;
+                        } else {
+                            uuidInput.value = userCredentials.uuid;
+                        }
+                    } else {
+                        applyUserCredentialsToInputs();
+                    }
+                } else {
+                    applyUserCredentialsToInputs();
+                }
+
+                // Check initial VPN state
+                checkVpnStateEnhanced();
+                updateUI();
+                
+                // Check for initial system alerts
+                setTimeout(() => {
+                    checkSystemAlerts();
+                    showAlert('success', 'Sistema', 'VRConnect carregado com sucesso!');
+                }, 1000);
+                
+                console.log("VRConnect inicializado com sucesso!");
+                
+            } catch (error) {
+                console.error("Erro durante inicialização:", error);
+                showAlert('error', 'Erro de Inicialização', 'Falha ao carregar o aplicativo');
+            }
+        }
+
+        // Initialize on DOM content loaded
+        document.addEventListener("DOMContentLoaded", initializeApp);
+
+        /**
+         * Menu System Functions
+         */
+        const menuBtn = document.getElementById("menuBtn");
+        const menuOverlay = document.getElementById("menuOverlay");
+        const hotspotStatus = document.getElementById("hotspotStatus");
+
+        menuBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            menuOverlay.style.display = "flex";
+            setTimeout(() => {
+                menuOverlay.classList.add("show");
+            }, 10);
+            updateHotspotStatus();
+        });
+
+        menuOverlay.addEventListener("click", (e) => {
+            if (e.target === menuOverlay) {
+                closeMenu();
+            }
+        });
+
+        function closeMenu() {
+            menuOverlay.classList.remove("show");
+            setTimeout(() => {
+                menuOverlay.style.display = "none";
+            }, 300);
+        }
+
+        // Menu Actions
+        document.getElementById("menuApn").addEventListener("click", () => {
+            try {
+                window.DtStartApnActivity?.execute();
+                showAlert('info', 'APN', 'Abrindo configurações de APN...');
+                closeMenu();
+            } catch (error) {
+                console.error("Error opening APN settings:", error);
+                showAlert('error', 'Erro', 'Falha ao abrir configurações de APN');
+            }
+        });
+
+        document.getElementById("menuBattery").addEventListener("click", () => {
+            try {
+                window.DtIgnoreBatteryOptimizations?.execute();
+                showAlert('info', 'Bateria', 'Abrindo otimização de bateria...');
+                closeMenu();
+            } catch (error) {
+                console.error("Error opening battery settings:", error);
+                showAlert('error', 'Erro', 'Falha ao abrir configurações de bateria');
+            }
+        });
+
+        document.getElementById("menuHotspot").addEventListener("click", () => {
+            toggleHotspot();
+            closeMenu();
+        });
+
+        document.getElementById("menuClean").addEventListener("click", () => {
+            try {
+                window.DtCleanApp?.execute();
+                showAlert('success', 'Limpeza', 'Cache limpo com sucesso!');
+                closeMenu();
+            } catch (error) {
+                console.error("Error cleaning app:", error);
+                showAlert('error', 'Erro', 'Falha ao limpar cache');
+            }
+        });
+
+        const menuTermsElement = document.getElementById("menuTerms");
+        if (menuTermsElement) {
+            menuTermsElement.addEventListener("click", () => {
+                try {
+                    window.DtStartWebViewActivity.execute("https://cls.developerws.com/termos/index.html");
+                    showAlert('info', 'Termos', 'Abrindo termos de uso...');
+                    closeMenu();
+                } catch (error) {
+                    console.error("Error opening terms:", error);
+                    showAlert('error', 'Erro', 'Falha ao abrir termos de uso');
+                }
+            });
+        }
+
+        /**
+         * Hotspot Functions
+         */
+        function updateHotspotStatus() {
+            try {
+                const status = window.DtGetStatusHotSpotService?.execute() || "STOPPED";
+                if (status === "RUNNING") {
+                    hotspotStatus.classList.add("active");
+                } else {
+                    hotspotStatus.classList.remove("active");
+                }
+            } catch (error) {
+                console.error("Error updating hotspot status:", error);
+            }
+        }
+
+        function toggleHotspot() {
+            try {
+                const currentStatus = window.DtGetStatusHotSpotService?.execute() || "STOPPED";
+                if (currentStatus === "RUNNING") {
+                    if (window.DtStopHotSpotService?.execute) {
+                        window.DtStopHotSpotService.execute();
+                        showAlert('info', 'Hotspot', 'Hotspot desativado');
+                    }
+                } else {
+                    if (window.DtStartHotSpotService?.execute) {
+                        window.DtStartHotSpotService.execute();
+                        showAlert('success', 'Hotspot', 'Hotspot ativado');
+                    }
+                }
+                setTimeout(updateHotspotStatus, 1000);
+            } catch (error) {
+                showAlert('error', 'Erro', 'Falha ao alterar hotspot');
+                console.error("Erro ao alterar hotspot:", error);
+            }
+        }
+
+        /**
+         * Performance Monitoring
+         */
+        function monitorPerformance() {
+            try {
+                // Monitor memory usage if available
+                if (window.performance && window.performance.memory) {
+                    const memory = window.performance.memory;
+                    const memoryUsage = Math.round(memory.usedJSHeapSize / 1024 / 1024);
+                    
+                    if (memoryUsage > 100) { // If using more than 100MB
+                        console.warn(`High memory usage detected: ${memoryUsage}MB`);
+                        showAlert('warning', 'Performance', `Uso de memória alto: ${memoryUsage}MB`);
+                    }
+                }
+                
+                // Monitor connection quality
+                if (navigator.connection) {
+                    const connection = navigator.connection;
+                    const effectiveType = connection.effectiveType;
+                    
+                    if (effectiveType === 'slow-2g' || effectiveType === '2g') {
+                        showAlert('warning', 'Conexão Lenta', 'Conexão de internet lenta detectada');
+                    }
+                }
+            } catch (error) {
+                console.error("Error monitoring performance:", error);
+            }
+        }
+
+        // Monitor performance every 30 seconds
+        setInterval(monitorPerformance, 30000);
+
+        /**
+         * Enhanced Error Handling
+         */
+        window.addEventListener('error', function(event) {
+            console.error('Global error caught:', event.error);
+            showAlert('error', 'Erro Crítico', 'Ocorreu um erro inesperado no sistema');
+        });
+
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            showAlert('warning', 'Aviso', 'Operação não pôde ser completada');
+        });
+
+        /**
+         * Periodic Health Check
+         */
+        function healthCheck() {
+            try {
+                // Check if critical functions are available
+                const criticalFunctions = [
+                    'DtGetVpnState',
+                    'DtGetNetworkName',
+                    'DtGetConfigs'
+                ];
+                
+                let healthScore = 0;
+                criticalFunctions.forEach(func => {
+                    if (window[func] && typeof window[func].execute === 'function') {
+                        healthScore++;
+                    }
+                });
+                
+                const healthPercentage = (healthScore / criticalFunctions.length) * 100;
+                
+                if (healthPercentage < 100) {
+                    console.warn(`System health: ${healthPercentage}%`);
+                    if (healthPercentage < 50) {
+                        showAlert('error', 'Sistema', 'Funcionalidades críticas indisponíveis');
+                    }
+                }
+                
+                console.log(`System health check: ${healthPercentage}%`);
+                
+            } catch (error) {
+                console.error("Error during health check:", error);
+            }
+        }
+
+        // Run health check every 2 minutes
+        setInterval(healthCheck, 120000);
+
+        /**
+         * Logo Error Handling
+         */
+        dynamicLogo.addEventListener('error', function() {
+            console.log("Dynamic logo failed to load, showing default title");
+            dynamicLogo.style.display = "none";
+            defaultTitle.style.display = "block";
+        });
+
+        dynamicLogo.addEventListener('load', function() {
+            console.log("Dynamic logo loaded successfully");
+            dynamicLogo.style.display = "block";
+            defaultTitle.style.display = "none";
+        });
+
+        console.log("VRConnect script loaded successfully");
+        console.log("Current user:", "Siniclei102");
+        console.log("Build date:", "2025-06-16 21:52:45");
+    </script>
+</body>
+</html>
